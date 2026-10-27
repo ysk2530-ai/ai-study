@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<!-- saved from url=(0164)https://sbzgggezwgnrdyrw.tunnel.elice.io/files/home/elicer/Practice/%EC%83%81%EA%B0%80%EC%A0%95%EB%B3%B4_%EB%B6%84%EC%84%9D%EB%8C%80%EC%8B%9C%EB%B3%B4%EB%93%9C.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전국 상가(상권)정보 분석 대시보드</title>
+<style>
+:root{--blue:#2c6fbb;--orange:#e8833a;--ink:#22293a;--mut:#66707f;}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f9;color:var(--ink);
+  font-family:'Pretendard','Noto Sans KR','Malgun Gothic','맑은 고딕',AppleGothic,sans-serif;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px 60px}
+header{background:var(--blue);color:#fff;padding:26px 0 22px;}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0}
+h1{margin:0;font-size:23px}
+.sub{margin:6px 0 0;font-size:13px;opacity:.85}
+#dl{border:0;border-radius:8px;background:#fff;color:var(--blue);font-weight:700;font-size:14px;
+  padding:11px 18px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+#dl:hover{background:#eef4fb}
+.kpis{display:flex;gap:16px;margin:-30px 0 26px}
+.kpi{flex:1;background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 4px 14px rgba(30,50,90,.10)}
+.kpi .n{font-size:34px;font-weight:800;color:var(--blue);letter-spacing:-1px}
+.kpi:nth-child(2) .n{color:#3a9d5c}.kpi:nth-child(3) .n{color:var(--orange)}
+.kpi .t{font-size:13px;color:var(--mut);margin-top:2px}
+.kpi .b{font-size:12px;color:#98a1ae;margin-top:4px}
+h2{font-size:18px;margin:34px 0 12px}
+h2::before{content:'▍';color:var(--blue);margin-right:6px}
+.card{background:#fff;border-radius:12px;box-shadow:0 4px 14px rgba(30,50,90,.08);padding:18px 20px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{background:#eef3f9;color:#33415c;padding:9px 12px;text-align:left;border-bottom:2px solid #d7e2ef}
+td{padding:9px 12px;border-bottom:1px solid #edf0f4}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ok{color:#3a9d5c;font-weight:700}
+.controls{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:14px}
+.controls select{font-size:15px;padding:9px 12px;border:1.5px solid #cdd7e3;border-radius:8px;
+  background:#fff;color:var(--ink);min-width:220px;cursor:pointer}
+.controls select:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+.card h3{margin:2px 0 4px;font-size:16px}
+.card .hint{font-size:12px;color:#98a1ae;margin:0 0 10px}
+.cap{font-size:13px;color:#33415c;background:#f2f7fd;border-left:4px solid var(--blue);
+  padding:8px 12px;border-radius:0 8px 8px 0;margin:12px 0 0}
+.scroll{overflow-x:auto}
+canvas{display:block}
+#tip{position:fixed;display:none;background:#22293a;color:#fff;font-size:12px;padding:7px 10px;
+  border-radius:6px;pointer-events:none;z-index:9;white-space:nowrap}
+footer{margin-top:34px;font-size:12px;color:#98a1ae;text-align:center}
+@media(max-width:720px){.kpis{flex-direction:column;margin-top:16px}.kpi .n{font-size:28px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div><h1>📊 전국 상가(상권)정보 분석 대시보드</h1>
+  <p class="sub">소상공인시장진흥공단_상가(상권)정보 2026년 6월 · 16개 지역 파일을 통합·정제 (생성 2026-10-27)</p></div>
+  <button id="dl">⬇ 분석 리포트 다운로드</button>
+</div></header>
+
+<div class="wrap">
+<section class="kpis">
+  <div class="kpi"><div class="n" id="k1">2,772,484</div><div class="t">가게 수</div><div class="b" id="k1b">16개 지역 파일 통합 · 2026.06</div></div>
+  <div class="kpi"><div class="n" id="k2">10</div><div class="t">업종 수 (대분류)</div><div class="b" id="k2b">전국 기준 · 중분류 74 / 소분류 241</div></div>
+  <div class="kpi"><div class="n" id="k3">16</div><div class="t">지역 수</div><div class="b" id="k3b">시·도 단위 (전남+광주 통합 1개)</div></div>
+</section>
+
+<h2>데이터 정제 과정 요약</h2>
+<div class="card">
+<table>
+<tbody><tr><th style="width:120px">단계</th><th>발견된 문제</th><th>처리 방법</th><th style="width:150px">처리 결과</th></tr>
+<tr><td>① 빈 열</td><td>동정보·호정보 열이 100% 빈칸</td><td>열 삭제 (39열 → 37열)</td><td class="num">2열 삭제</td></tr>
+<tr><td>② 층정보 혼재</td><td>'지하1층', 'B1', '반지층' 등 문자·숫자 섞임</td><td>지하·B·반지층 → 음수, 'N층' → N으로 숫자화</td><td class="num">1,395,376건 변환</td></tr>
+<tr><td>③ 주소 반복</td><td>'세종특별자치시 세종특별자치시'처럼 지역명 중복</td><td>지번주소·도로명주소에서 반복 지역명 1개로 축소</td><td class="num">31,632건 수정</td></tr>
+<tr><td>④ 상호명 더미</td><td>가게 이름이 '업소명없음'</td><td>'이름없음'으로 통일</td><td class="num">3,571건</td></tr>
+<tr><td>⑤ 좌표 이탈</td><td>위도·경도가 한국 밖일 가능성</td><td>범위 검사(위도 33~39, 경도 124~132)</td><td class="num ok">0건 — 전부 정상</td></tr>
+<tr><td>⑥ 중복</td><td>같은 가게가 두 번 입력</td><td>상가업소번호 기준 중복 제거</td><td class="num ok">0건 — 중복 없음</td></tr>
+</tbody></table>
+<p class="hint" style="margin-top:12px">원본 16개 파일(1.5GB, 2,772,484행 × 39열) → 통합 파일 1개(37열). 삭제된 행은 없고 2,772,484행이 그대로 유지됨.</p>
+</div>
+
+<h2>업종·지역 그래프</h2>
+<div class="controls">
+  <label for="sel">🗺️ 지역 선택</label>
+  <select id="sel"><option value="ALL">전국 (전체)</option><option value="경기도">경기도</option><option value="서울특별시">서울특별시</option><option value="전남광주통합특별시">전남광주통합특별시</option><option value="경상남도">경상남도</option><option value="부산광역시">부산광역시</option><option value="경상북도">경상북도</option><option value="인천광역시">인천광역시</option><option value="충청남도">충청남도</option><option value="대구광역시">대구광역시</option><option value="강원특별자치도">강원특별자치도</option><option value="전북특별자치도">전북특별자치도</option><option value="충청북도">충청북도</option><option value="대전광역시">대전광역시</option><option value="제주특별자치도">제주특별자치도</option><option value="울산광역시">울산광역시</option><option value="세종특별자치시">세종특별자치시</option></select>
+  <span class="hint" style="margin:0">고르면 아래 그래프와 숫자가 그 지역 기준으로 바뀝니다</span>
+</div>
+<div class="grid">
+  <div class="card"><h3>1. 업종별 가게 수</h3><p class="hint">선택 지역 기준 · 상권업종대분류</p>
+    <div class="scroll"><canvas id="c1" width="1920" height="700" style="width: 960px; height: 350px;"></canvas></div><p class="cap" id="cap1">→ 전국에서는 음식업이 840,255개(30.3%)로 1위이고, 음식·소매·수리·개인 3개 업종이 전체의 약 66%를 차지한다.</p></div>
+  <div class="card"><h3>2. 지역별 가게 수</h3><p class="hint">16개 시·도 · 선택한 지역은 주황색으로 표시</p>
+    <div class="scroll"><canvas id="c2" width="1920" height="1072" style="width: 960px; height: 536px;"></canvas></div><p class="cap" id="cap2">→ 경기도와 서울에 전국 가게의 약 44%가 몰려 있고, 세종·울산·제주가 가장 적다.</p></div>
+  <div class="card"><h3>3. 지역 × 업종 비교</h3><p class="hint">각 칸은 그 지역 가게 중 해당 업종의 비율(%) · 진할수록 비중 높음 · 칸에 마우스를 올리면 상세 숫자</p>
+    <div class="scroll"><canvas id="c3" width="1868" height="1112" style="width: 934px; height: 556px;"></canvas></div><p class="cap" id="cap3">→ 음식업 비중이 가장 높은 지역은 경상남도(36.7%), 가장 낮은 지역은 서울특별시(25.5%)다.</p></div>
+  <div class="card"><h3>4. 음식점 세부 종류 TOP 15</h3><p class="hint">선택 지역 기준 · 상권업종소분류 중 '음식'</p>
+    <div class="scroll"><canvas id="c4" width="1920" height="1010" style="width: 960px; height: 505px;"></canvas></div><p class="cap" id="cap4">→ 전국 음식점 840,255개 중 백반/한정식과 카페가 각각 21.5%, 14.6%로 양대 업종이다.</p></div>
+</div>
+
+<footer>데이터 출처: 소상공인시장진흥공단 상가(상권)정보 2026.06 (16개 지역 CSV 통합 정제본) · 이 페이지는 인터넷 연결 없이 열 수 있습니다.</footer>
+</div>
+<div id="tip"></div>
+
+<script>
+const D = {"total":2772484,"sido":[["경기도",672680],["서울특별시",554092],["전남광주통합특별시",175276],["경상남도",172887],["부산광역시",159689],["경상북도",144967],["인천광역시",136995],["충청남도",124589],["대구광역시",118357],["강원특별자치도",110206],["전북특별자치도",98749],["충청북도",93731],["대전광역시",80704],["제주특별자치도",59009],["울산광역시",54737],["세종특별자치시",15816]],"cats":["음식","소매","수리·개인","과학·기술","교육","시설관리·임대","예술·스포츠","부동산","숙박","보건의료"],"dae_all":[["음식",840255],["소매",648129],["수리·개인",329827],["과학·기술",293137],["교육",181775],["시설관리·임대",119955],["예술·스포츠",116012],["부동산",105445],["숙박",80483],["보건의료",57466]],"dae_by":{"경기도":[["음식",185804],["소매",149768],["수리·개인",80954],["과학·기술",80157],["교육",55954],["예술·스포츠",30708],["시설관리·임대",30514],["부동산",30196],["보건의료",17464],["숙박",11161]],"서울특별시":[["음식",141126],["소매",111306],["과학·기술",100549],["수리·개인",53716],["교육",44215],["시설관리·임대",26296],["부동산",24714],["예술·스포츠",21061],["보건의료",18700],["숙박",12409]],"전남광주통합특별시":[["음식",55881],["소매",46230],["수리·개인",23492],["과학·기술",13810],["교육",7879],["시설관리·임대",7404],["예술·스포츠",7152],["숙박",5840],["부동산",5790],["보건의료",1798]],"경상남도":[["음식",63495],["소매",42285],["수리·개인",22327],["과학·기술",10341],["교육",7927],["숙박",6875],["예술·스포츠",6569],["시설관리·임대",6099],["부동산",5539],["보건의료",1430]],"부산광역시":[["음식",53716],["소매",38899],["수리·개인",21085],["과학·기술",14009],["교육",7997],["시설관리·임대",6233],["예술·스포츠",6121],["부동산",6055],["숙박",3233],["보건의료",2341]],"경상북도":[["음식",52361],["소매",37779],["수리·개인",18321],["과학·기술",8050],["숙박",6953],["교육",5785],["예술·스포츠",5623],["시설관리·임대",5421],["부동산",3723],["보건의료",951]],"인천광역시":[["음식",40973],["소매",31534],["수리·개인",17154],["과학·기술",12244],["교육",9681],["예술·스포츠",6996],["시설관리·임대",5719],["부동산",5569],["보건의료",3702],["숙박",3423]],"충청남도":[["음식",40476],["소매",32973],["수리·개인",14894],["과학·기술",7988],["교육",6502],["시설관리·임대",5594],["예술·스포츠",5203],["숙박",4928],["부동산",3882],["보건의료",2149]],"대구광역시":[["음식",37977],["소매",30514],["수리·개인",16381],["과학·기술",10173],["교육",7001],["예술·스포츠",5104],["시설관리·임대",4350],["부동산",4166],["보건의료",1530],["숙박",1161]],"강원특별자치도":[["음식",37719],["소매",26418],["수리·개인",11809],["숙박",8931],["과학·기술",6300],["교육",6147],["시설관리·임대",4384],["예술·스포츠",4262],["부동산",2438],["보건의료",1798]],"전북특별자치도":[["음식",31006],["소매",28387],["수리·개인",12693],["과학·기술",6863],["교육",4572],["시설관리·임대",4070],["예술·스포츠",4014],["숙박",3246],["부동산",3020],["보건의료",878]],"충청북도":[["음식",31355],["소매",23829],["수리·개인",11589],["과학·기술",5960],["교육",5224],["시설관리·임대",4316],["예술·스포츠",4302],["부동산",2811],["숙박",2690],["보건의료",1655]],"대전광역시":[["음식",23850],["소매",20214],["수리·개인",10989],["과학·기술",7405],["교육",5399],["예술·스포츠",3689],["시설관리·임대",3507],["부동산",2803],["보건의료",1944],["숙박",904]],"제주특별자치도":[["음식",19746],["소매",12330],["숙박",7525],["수리·개인",5111],["과학·기술",4229],["시설관리·임대",3202],["교육",2845],["예술·스포츠",1893],["부동산",1754],["보건의료",374]],"울산광역시":[["음식",19736],["소매",12591],["수리·개인",7668],["과학·기술",3570],["교육",3024],["예술·스포츠",2549],["시설관리·임대",2120],["부동산",1880],["숙박",1081],["보건의료",518]],"세종특별자치시":[["음식",5034],["소매",3072],["수리·개인",1644],["교육",1623],["과학·기술",1489],["부동산",1105],["예술·스포츠",766],["시설관리·임대",726],["보건의료",234],["숙박",123]]},"food_all":[["백반/한정식",180762],["카페",122623],["요리 주점",56078],["돼지고기 구이/찜",55328],["김밥/만두/분식",44410],["치킨",40315],["국/탕/찌개류",31908],["빵/도넛",31168],["중국집",27615],["일반 유흥 주점",25375],["국수/칼국수",20442],["경양식",19598],["일식 회/초밥",19499],["횟집",19385],["피자",17509]],"food_n":840255,"food_by":{"경기도":[["백반/한정식",36488],["카페",27048],["돼지고기 구이/찜",11974],["요리 주점",10780],["김밥/만두/분식",10490],["치킨",9554],["국/탕/찌개류",8123],["빵/도넛",7465],["중국집",6490],["일반 유흥 주점",5155],["일식 회/초밥",4455],["피자",4388],["국수/칼국수",4325],["경양식",4104],["생맥주 전문",3729]],"서울특별시":[["백반/한정식",26446],["카페",22739],["요리 주점",10731],["김밥/만두/분식",8097],["돼지고기 구이/찜",7834],["빵/도넛",6119],["일식 회/초밥",5989],["경양식",5941],["치킨",5560],["국/탕/찌개류",4788],["중국집",4716],["피자",3436],["국수/칼국수",2934],["생맥주 전문",2908],["일반 유흥 주점",2386]],"전남광주통합특별시":[["백반/한정식",13586],["카페",8334],["요리 주점",4382],["돼지고기 구이/찜",3653],["김밥/만두/분식",2683],["치킨",2673],["국/탕/찌개류",2250],["일반 유흥 주점",1909],["빵/도넛",1798],["횟집",1611],["생맥주 전문",1564],["중국집",1502],["피자",1043],["해산물 구이/찜",1015],["떡/한과",935]],"경상남도":[["백반/한정식",14506],["카페",8389],["돼지고기 구이/찜",4663],["요리 주점",4009],["일반 유흥 주점",3711],["치킨",3166],["김밥/만두/분식",3002],["횟집",2480],["국/탕/찌개류",2314],["빵/도넛",2043],["중국집",1884],["국수/칼국수",1567],["해산물 구이/찜",1263],["피자",1124],["경양식",1024]],"부산광역시":[["백반/한정식",10640],["카페",7335],["요리 주점",4422],["돼지고기 구이/찜",3568],["김밥/만두/분식",2732],["치킨",2567],["일반 유흥 주점",2426],["빵/도넛",1977],["횟집",1959],["중국집",1743],["국/탕/찌개류",1520],["경양식",1358],["일식 회/초밥",1338],["국수/칼국수",1323],["해산물 구이/찜",1054]],"경상북도":[["백반/한정식",13083],["카페",7607],["돼지고기 구이/찜",3932],["요리 주점",3186],["치킨",2619],["김밥/만두/분식",2479],["국/탕/찌개류",1834],["중국집",1783],["빵/도넛",1636],["일반 유흥 주점",1601],["횟집",1451],["국수/칼국수",1439],["해산물 구이/찜",983],["피자",829],["떡/한과",772]],"인천광역시":[["백반/한정식",8264],["카페",5765],["요리 주점",2890],["돼지고기 구이/찜",2487],["김밥/만두/분식",2372],["치킨",2090],["국/탕/찌개류",1785],["빵/도넛",1522],["중국집",1398],["일반 유흥 주점",1010],["국수/칼국수",968],["횟집",949],["일식 회/초밥",888],["생맥주 전문",887],["피자",885]],"충청남도":[["백반/한정식",9903],["카페",5337],["돼지고기 구이/찜",2639],["요리 주점",2201],["치킨",2087],["김밥/만두/분식",2005],["국/탕/찌개류",1721],["중국집",1525],["빵/도넛",1304],["국수/칼국수",1173],["일반 유흥 주점",1117],["횟집",1115],["피자",772],["해산물 구이/찜",740],["생맥주 전문",729]],"대구광역시":[["백반/한정식",8152],["카페",5513],["요리 주점",2760],["돼지고기 구이/찜",2696],["김밥/만두/분식",2123],["치킨",1903],["빵/도넛",1509],["중국집",1194],["일반 유흥 주점",1178],["국수/칼국수",1095],["국/탕/찌개류",1094],["일식 회/초밥",860],["경양식",826],["횟집",786],["피자",769]],"강원특별자치도":[["백반/한정식",8970],["카페",5183],["돼지고기 구이/찜",2670],["요리 주점",2598],["치킨",1712],["김밥/만두/분식",1677],["국/탕/찌개류",1540],["국수/칼국수",1383],["횟집",1369],["일반 유흥 주점",1182],["중국집",1166],["빵/도넛",1152],["닭/오리고기 구이/찜",701],["경양식",693],["해산물 구이/찜",686]],"전북특별자치도":[["백반/한정식",7741],["카페",4871],["돼지고기 구이/찜",1821],["요리 주점",1808],["김밥/만두/분식",1585],["치킨",1541],["국/탕/찌개류",1150],["중국집",1104],["빵/도넛",1103],["일반 유흥 주점",803],["국수/칼국수",725],["생맥주 전문",677],["횟집",662],["피자",606],["경양식",582]],"충청북도":[["백반/한정식",7548],["카페",4210],["돼지고기 구이/찜",2294],["요리 주점",1793],["김밥/만두/분식",1704],["치킨",1623],["국/탕/찌개류",1406],["중국집",1141],["빵/도넛",1002],["국수/칼국수",909],["일반 유흥 주점",734],["생맥주 전문",610],["해산물 구이/찜",553],["피자",550],["경양식",500]],"대전광역시":[["백반/한정식",5111],["카페",3836],["돼지고기 구이/찜",1708],["요리 주점",1415],["김밥/만두/분식",1409],["치킨",1211],["국/탕/찌개류",891],["빵/도넛",881],["국수/칼국수",760],["중국집",730],["일식 회/초밥",625],["경양식",562],["피자",533],["생맥주 전문",450],["횟집",407]],"제주특별자치도":[["백반/한정식",4891],["카페",3048],["요리 주점",1549],["돼지고기 구이/찜",1513],["일반 유흥 주점",907],["김밥/만두/분식",838],["빵/도넛",766],["치킨",676],["경양식",640],["횟집",615],["국/탕/찌개류",548],["국수/칼국수",543],["중국집",489],["일식 회/초밥",430],["피자",383]],"울산광역시":[["백반/한정식",4413],["카페",2553],["돼지고기 구이/찜",1600],["요리 주점",1364],["치킨",1050],["일반 유흥 주점",942],["김밥/만두/분식",934],["국/탕/찌개류",707],["빵/도넛",651],["횟집",589],["중국집",568],["국수/칼국수",493],["경양식",366],["해산물 구이/찜",366],["일식 회/초밥",360]],"세종특별자치시":[["백반/한정식",1020],["카페",855],["치킨",283],["김밥/만두/분식",280],["돼지고기 구이/찜",276],["빵/도넛",240],["국/탕/찌개류",237],["요리 주점",190],["중국집",182],["국수/칼국수",144],["피자",136],["경양식",128],["일식 회/초밥",125],["해산물 구이/찜",84],["생맥주 전문",71]]},"food_n_by":{"강원특별자치도":37719,"경기도":185804,"경상남도":63495,"경상북도":52361,"대구광역시":37977,"대전광역시":23850,"부산광역시":53716,"서울특별시":141126,"세종특별자치시":5034,"울산광역시":19736,"인천광역시":40973,"전남광주통합특별시":55881,"전북특별자치도":31006,"제주특별자치도":19746,"충청남도":40476,"충청북도":31355}};
+const F = n => n.toLocaleString('ko-KR');
+const sidoCnt = new Map(D.sido.map(r => [r[0], r[1]]));
+let sel = 'ALL';
+
+function setup(cv, w, h){
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = w * dpr; cv.height = h * dpr;
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return ctx;
+}
+function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.log10(raw)));
+  return [1, 2, 2.5, 5, 10].map(k => k * p).find(s => s >= raw); }
+
+function barH(cv, items, opt){
+  const W = 960, labW = 150, top = 14, bh = 22, gap = 9;
+  const H = top + items.length * (bh + gap) + 26;
+  const ctx = setup(cv, W, H);
+  const max = Math.max(...items.map(x => x[1])), tot = items.reduce((a, x) => a + x[1], 0);
+  ctx.font = '12px sans-serif'; ctx.textBaseline = 'middle';
+  const step = niceStep(max), xw = W - labW - 110;
+  ctx.strokeStyle = '#e7ebf1'; ctx.fillStyle = '#98a1ae'; ctx.textAlign = 'center';
+  for (let v = step; v <= max; v += step){
+    const x = labW + v / max * xw;
+    ctx.beginPath(); ctx.moveTo(x, top - 4); ctx.lineTo(x, H - 20); ctx.stroke();
+    ctx.fillText(v >= 10000 ? (v/10000)+'만' : F(v), x, H - 8);
+  }
+  items.forEach((it, k) => {
+    const y = top + k * (bh + gap), hot = opt.hi === it[0];
+    ctx.fillStyle = '#33415c'; ctx.textAlign = 'right';
+    ctx.fillText(it[0], labW - 8, y + bh/2);
+    ctx.fillStyle = hot ? '#e8833a' : (opt.color || '#2c6fbb');
+    const bw = Math.max(2, it[1] / max * xw);
+    ctx.fillRect(labW, y, bw, bh);
+    ctx.fillStyle = '#22293a'; ctx.textAlign = 'left'; ctx.font = 'bold 11.5px sans-serif';
+    ctx.fillText(F(it[1]) + ' (' + (it[1]/tot*100).toFixed(1) + '%)', labW + bw + 6, y + bh/2);
+    ctx.font = '12px sans-serif';
+  });
+}
+
+const tip = document.getElementById('tip');
+function heat(cv){
+  const rows = D.sido.map(r => r[0]), cols = D.cats;
+  const CW = 76, CH = 30, L = 160, T = 64;
+  const W = L + cols.length * CW + 14, H = T + rows.length * CH + 12;
+  const ctx = setup(cv, W, H);
+  const mat = {}, share = {};
+  rows.forEach(rw => {
+    const m = new Map(D.dae_by[rw]), tot = sidoCnt.get(rw); mat[rw] = m; share[rw] = {};
+    cols.forEach(c => share[rw][c] = (m.get(c) || 0) / tot * 100);
+  });
+  ctx.font = '12px sans-serif'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#33415c'; ctx.textAlign = 'right';
+  rows.forEach((rw, i) => {
+    ctx.font = (sel === rw ? 'bold ' : '') + '12px sans-serif';
+    ctx.fillStyle = sel === rw ? '#e8833a' : '#33415c';
+    ctx.fillText(rw, L - 8, T + i * CH + CH/2);
+  });
+  ctx.textAlign = 'left';
+  cols.forEach((c, j) => {
+    ctx.save(); ctx.translate(L + j * CW + 6, T - 10); ctx.rotate(-Math.PI/7);
+    ctx.fillStyle = '#33415c'; ctx.font = '11.5px sans-serif'; ctx.fillText(c, 0, 0); ctx.restore();
+  });
+  const mx = Math.max(...rows.map(rw => Math.max(...cols.map(c => share[rw][c]))));
+  rows.forEach((rw, i) => cols.forEach((c, j) => {
+    const s = share[rw][c], t = s / mx;
+    ctx.fillStyle = 'rgb(' + [242-150*t, 247-166*t, 252-181*t].map(Math.round).join(',') + ')';
+    ctx.fillRect(L + j * CW + 1, T + i * CH + 1, CW - 2, CH - 2);
+    if (sel === rw){ ctx.strokeStyle = '#e8833a'; ctx.lineWidth = 2.5;
+      ctx.strokeRect(L + j * CW + 1, T + i * CH + 1, CW - 2, CH - 2); }
+    ctx.fillStyle = t > .62 ? '#fff' : '#22293a'; ctx.textAlign = 'center'; ctx.font = '10.5px sans-serif';
+    ctx.fillText((s < 10 ? s.toFixed(1) : Math.round(s)) + '%', L + j * CW + CW/2, T + i * CH + CH/2);
+  }));
+  cv.onmousemove = e => {
+    const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    const i = Math.floor((y - T) / CH), j = Math.floor((x - L) / CW);
+    if (i < 0 || i >= rows.length || j < 0 || j >= cols.length){ tip.style.display = 'none'; return; }
+    const rw = rows[i], c = cols[j];
+    tip.innerHTML = rw + ' · ' + c + ': <b>' + F((mat[rw].get(c) || 0)) + '개</b> (지역 내 ' +
+      share[rw][c].toFixed(1) + '%)';
+    tip.style.display = 'block'; tip.style.left = (e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+  };
+  cv.onmouseleave = () => tip.style.display = 'none';
+}
+
+function topOf(arr, n){ return arr && arr.length ? arr[0] : null; }
+
+function render(){
+  const region = sel === 'ALL' ? null : sel;
+  // KPI
+  const cnt = region ? sidoCnt.get(region) : D.total;
+  const cats = region ? D.dae_by[region] : D.dae_all;
+  document.getElementById('k1').textContent = F(cnt);
+  document.getElementById('k2').textContent = cats.length;
+  document.getElementById('k3').textContent = region ? 1 : D.sido.length;
+  document.getElementById('k1b').textContent = region ? '전국 ' + F(D.total) + '개 중 ' + (cnt/D.total*100).toFixed(1) + '%'
+    : '16개 지역 파일 통합 · 2026.06';
+  document.getElementById('k2b').textContent = region ? region + '에 있는 대분류 업종' : '전국 기준 · 중분류 74 / 소분류 241';
+  document.getElementById('k3b').textContent = region ? region + ' 단일 지역' : '시·도 단위 (전남+광주 통합 1개)';
+  // 1. 업종별
+  barH(document.getElementById('c1'), cats, {color: '#2c6fbb'});
+  const t1 = topOf(cats);
+  document.getElementById('cap1').textContent = region
+    ? '→ ' + region + '에서는 ' + t1[0] + ' 업종이 ' + F(t1[1]) + '개(' + (t1[1]/cnt*100).toFixed(1) + '%)로 가장 많다.'
+    : '→ 전국에서는 음식업이 ' + F(t1[1]) + '개(30.3%)로 1위이고, 음식·소매·수리·개인 3개 업종이 전체의 약 66%를 차지한다.';
+  // 2. 지역별
+  barH(document.getElementById('c2'), D.sido, {color: '#2c6fbb', hi: region});
+  document.getElementById('cap2').textContent = region
+    ? '→ 선택한 ' + region + '은(는) ' + F(cnt) + '개로 16개 지역 중 ' + (D.sido.findIndex(r => r[0] === region) + 1) + '위다(주황색 막대).'
+    : '→ 경기도와 서울에 전국 가게의 약 44%가 몰려 있고, 세종·울산·제주가 가장 적다.';
+  // 3. 히트맵
+  heat(document.getElementById('c3'));
+  const fs = r => (D.dae_by[r].find(x => x[0] === '음식') || [0, 0])[1] / sidoCnt.get(r) * 100;
+  if (region){
+    const ns = (D.dae_all.find(x => x[0] === t1[0]) || [0, 0])[1] / D.total * 100;
+    const rs = t1[1] / cnt * 100;
+    document.getElementById('cap3').textContent = '→ ' + region + '의 ' + t1[0] + ' 비중은 ' + rs.toFixed(1) +
+      '%로 전국 평균 ' + ns.toFixed(1) + '%보다 ' + (rs >= ns ? '높다' : '낮다') + '.';
+  } else {
+    const hi = D.sido.map(r => r[0]).sort((a, b) => fs(b) - fs(a));
+    document.getElementById('cap3').textContent = '→ 음식업 비중이 가장 높은 지역은 ' + hi[0] + '(' + fs(hi[0]).toFixed(1) +
+      '%), 가장 낮은 지역은 ' + hi[hi.length-1] + '(' + fs(hi[hi.length-1]).toFixed(1) + '%)다.';
+  }
+  // 4. 음식 세부
+  const foods = region ? D.food_by[region] : D.food_all;
+  barH(document.getElementById('c4'), foods, {color: '#3a9d5c'});
+  const t4 = topOf(foods), fn = region ? D.food_n_by[region] : D.food_n;
+  document.getElementById('cap4').textContent = region
+    ? '→ ' + region + ' 음식점 ' + F(fn) + '개 중 ' + t4[0] + '이 ' + F(t4[1]) + '개(' + (t4[1]/fn*100).toFixed(1) + '%)로 가장 많다.'
+    : '→ 전국 음식점 ' + F(D.food_n) + '개 중 백반/한정식과 카페가 각각 ' + (t4[1]/D.food_n*100).toFixed(1) + '%, ' +
+      (foods[1][1]/D.food_n*100).toFixed(1) + '%로 양대 업종이다.';
+}
+
+// 셀렉트 채우기
+const selEl = document.getElementById('sel');
+selEl.add(new Option('전국 (전체)', 'ALL'));
+D.sido.forEach(r => selEl.add(new Option(r[0], r[0])));
+selEl.onchange = () => { sel = selEl.value; render(); };
+render();
+
+// ===== 리포트 다운로드 =====
+const CLEAN = [
+  ['① 빈 열', '동정보·호정보 100% 빈칸', '열 삭제(39→37열)', '2열 삭제'],
+  ['② 층정보 혼재', "'지하1층','B1','반지층' 섞임", '지하·B·반지층→음수, N층→N', '1,395,376건 변환'],
+  ['③ 주소 반복', "'세종특별자치시 세종특별자치시' 중복", '반복 지역명 1개로 축소', '31,632건 수정'],
+  ['④ 상호명 더미', "'업소명없음'", "'이름없음'으로 통일", '3,571건'],
+  ['⑤ 좌표 이탈', '한국 밖 위·경도', '범위 검사 후 삭제', '0건(전부 정상)'],
+  ['⑥ 중복', '같은 가게 중복 입력', '상가업소번호 기준 제거', '0건(중복 없음)']];
+document.getElementById('dl').onclick = () => {
+  const region = sel === 'ALL' ? null : sel;
+  const cnt = region ? sidoCnt.get(region) : D.total;
+  const rank = region ? D.sido.findIndex(r => r[0] === region) + 1 : null;
+  const cats = region ? D.dae_by[region] : D.dae_all;
+  const t1 = cats[0], share1 = t1[1] / cnt * 100;
+  const ns1 = region ? (D.dae_all.find(x => x[0] === t1[0]) || [0,0])[1] / D.total * 100 : share1;
+  const foods = region ? D.food_by[region] : D.food_all;
+  const t4 = foods[0], fn = region ? D.food_n_by[region] : D.food_n;
+  const t42 = foods[1];
+  const head = region ? region + ' 상권 분석 리포트' : '전국 상권 분석 리포트';
+  const stats = region ? [
+    ['가게 수', F(cnt) + '개 (전국 ' + F(D.total) + '개 중 ' + (cnt/D.total*100).toFixed(1) + '%)'],
+    ['지역 내 순위', '16개 시·도 중 ' + rank + '위'],
+    ['업종 수(대분류)', cats.length + '개 / 전국 10개'],
+    ['최다 업종', t1[0] + ' ' + F(t1[1]) + '개 (지역 내 ' + share1.toFixed(1) + '%, 전국 평균 ' + ns1.toFixed(1) + '%)'],
+    ['음식점 수', F(fn) + '개 (지역 내 ' + (fn/cnt*100).toFixed(1) + '%)'],
+    ['최다 음식 세부업종', t4[0] + ' ' + F(t4[1]) + '개 · 그다음 ' + t42[0] + ' ' + F(t42[1]) + '개']]
+  : [['가게 수', F(D.total) + '개 (16개 시·도)'],
+    ['최다 업종', t1[0] + ' ' + F(t1[1]) + '개 (전체의 ' + share1.toFixed(1) + '%)'],
+    ['음식점 수', F(D.food_n) + '개 (전체의 ' + (D.food_n/D.total*100).toFixed(1) + '%)'],
+    ['최다 음식 세부업종', t4[0] + ' ' + F(t4[1]) + '개 · 그다음 ' + t42[0] + ' ' + F(t42[1]) + '개'],
+    ['가게 많은 지역 TOP 3', D.sido.slice(0, 3).map(r => r[0] + ' ' + F(r[1]) + '개').join(', ')]];
+  const interp = region ? [
+    head.replace(' 분석 리포트', '') + '에는 총 ' + F(cnt) + '개의 가게가 있으며, 이는 전국 가게의 ' + (cnt/D.total*100).toFixed(1) + '%에 해당한다.',
+    '업종은 ' + t1[0] + '(' + share1.toFixed(1) + '%)가 중심이고, 이 비중은 전국 평균(' + ns1.toFixed(1) + '%)보다 ' + (share1 >= ns1 ? '높아 해당 업종 특화 지역으로 볼 수 있다.' : '낮아 업종 분포가 상대적으로 고르다.'),
+    '음식점은 ' + F(fn) + '개로 전체 가게의 ' + (fn/cnt*100).toFixed(1) + '%이며, 그중 ' + t4[0] + '와(과) ' + t42[0] + '이 양대 세부업종을 이룬다.']
+  : ['전국 총 ' + F(D.total) + '개 가게 중 음식업이 ' + share1.toFixed(1) + '%로 1위이고, 음식·소매·수리·개인 3개 업종이 약 66%를 차지한다.',
+    '경기도와 서울에 전국 가게의 약 44%가 집중되어 수도권 쏠림이 뚜렷하다.',
+    '음식점 세부업종에서는 백반/한정식과 카페가 전체 음식점의 약 36%를 차지하는 양대 업종이다.'];
+  const now = new Date();
+  const dt = now.toLocaleString('ko-KR');
+  const rows = a => a.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('');
+  const doc = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>' + head + '</title><style>' +
+    'body{font-family:\'Malgun Gothic\',\'맑은 고딕\',sans-serif;max-width:760px;margin:30px auto;padding:0 16px;color:#22293a;line-height:1.6}' +
+    'h1{font-size:22px;border-bottom:3px solid #2c6fbb;padding-bottom:8px}h2{font-size:16px;color:#2c6fbb}' +
+    '.meta{color:#66707f;font-size:13px}table{border-collapse:collapse;width:100%;font-size:14px}' +
+    'th{background:#eef3f9;border:1px solid #d7e2ef;padding:8px 10px;text-align:left}' +
+    'td{border:1px solid #dfe6ee;padding:8px 10px}td:first-child{background:#f7fafc;width:180px;font-weight:700}' +
+    'li{margin:6px 0}.foot{font-size:12px;color:#98a1ae;margin-top:28px;border-top:1px solid #e3e8ee;padding-top:10px}</style></head><body>' +
+    '<h1>📋 ' + head + '</h1><p class="meta">데이터: 소상공인시장진흥공단 상가(상권)정보 2026.06 (통합 정제본) · 생성: ' + dt + '</p>' +
+    '<h2>1. 주요 숫자</h2><table><tbody>' + rows(stats) + '</tbody></table>' +
+    '<h2>2. 해석</h2><ul>' + interp.map(s => '<li>' + s + '</li>').join('') + '</ul>' +
+    '<h2>3. 데이터 정제 요약</h2><table><tr><th>단계</th><th>문제</th><th>처리</th><th>결과</th></tr>' + rows(CLEAN) + '</table>' +
+    '<p class="foot">본 리포트는 통합 정제 데이터(2,772,484행 × 37열, 열·값 수준의 오류 수정 후 삭제된 행 없음)를 기준으로 자동 생성되었습니다.</p></body></html>';
+  const blob = new Blob(['\ufeff' + doc], {type: 'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '분석리포트_' + (region || '전국') + '.html';
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+};
+</script>
+
+</body></html>
